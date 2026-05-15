@@ -1,227 +1,148 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+//Select Dom Elements 
+const input = document.getElementById("todo-input")
+const addBtn = document.getElementById('add-btn')
+const list = document.getElementById('todo-list')
+
+/*=====new changes=====*/
+const count = document.createElement('p');
+count.id = 'count';
+document.body.appendChild(count);
+
+
+//Try to load saved todos from local storage (if any)
+const saved = localStorage.getItem('todos');
+const todos = saved ? JSON.parse(saved) : [];
+
+function saveTodos() {
+    //this saves current todos to local storage
+    localStorage.setItem('todos', JSON.stringify(todos));
 }
 
-body {
-  background: #f5f5f5;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: start;
-  padding-top: 80px;
-  color: #333;
+//Create a dom node for a todo object & append it to the list 
+function createTodoNode(todo, index) {
+    const li = document.createElement('li');
+
+    // checkbox to toggle completion
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = !!todo.completed;  // double not gives us exact False value or gieves exact boolean value
+    checkbox.addEventListener('change', () => {
+        todo.completed = checkbox.checked;
+
+        // TODO: Visual feedback : strick-through when completed
+        textSpan.style.textDecoration = todo.completed ? 'line-through' : "";
+        saveTodos();
+    });
+
+    //TExt of the TODO 
+    const textSpan = document.createElement('span')
+    textSpan.textContent = todo.text;
+    textSpan.style.margin = '0 8px';
+    if (todo.completed) {
+        textSpan.style.textDecoration = 'line-through';
+    }
+    //Add double click event llistener to edit todo
+    textSpan.addEventListener('dblclick', () => {
+        const newText = prompt("Edit todo", todo.text);
+        if (newText !== null) {
+            todo.text = newText.trim()
+            textSpan.textContent = todo.text;
+            saveTodos();
+        }
+    })
+
+    /*=====new changes=====*/
+
+    // Edit Button
+    const editBtn = document.createElement('button');
+    editBtn.textContent = '✏️';
+    editBtn.classList.add('edit-btn');
+
+    editBtn.addEventListener('click', () => {
+        const newText = prompt("Edit todo", todo.text);
+        if (newText !== null && newText.trim() !== "") {
+            todo.text = newText.trim();
+            textSpan.textContent = todo.text;
+            saveTodos();
+        }
+    });
+
+
+
+    //Delete ToDo button 
+    const delBtn = document.createElement('button');
+    /*=====new changes=====*/
+    delBtn.textContent = '✕';
+    delBtn.classList.add('delete-btn');
+    
+    delBtn.addEventListener('click', () => {
+        todos.splice(index, 1);
+        render();
+        saveTodos();
+    })
+
+    li.appendChild(checkbox);
+    li.appendChild(textSpan);
+    li.appendChild(editBtn);
+    li.appendChild(delBtn);
+    return li; // to call from render function  
 }
 
-/* Title and Subtitle */
-h1 {
-  font-size: 2.5rem;
-  color: #222;
-  margin-bottom: 10px;
-  letter-spacing: 1px;
+//Render the whole TOdo list from todos array
+function render() {
+    list.innerHTML = '';
+
+    //Recreate each item 
+    todos.forEach((todo, index) => {
+
+        const node = createTodoNode(todo, index);
+        list.appendChild(node);
+    });
+    /*=====new changes=====*/
+    const remaining = todos.filter(todo => !todo.completed).length;
+    count.textContent = `Your remaining tasks are : ${remaining}`;
+
 }
 
-/*new changes*/
+/*=====new changes=====*/
+// Quote Box
+const quote = document.createElement('div');
 
-.subtitle{
-  color:#777;
-  font-size:1rem;
-  margin-top:-5px;
-  margin-bottom:25px;
-}
+quote.classList.add('quote-box');
+
+quote.innerHTML = `
+<span>❝</span>
+"It always seems impossible until it's done"- Nelson Mandela.
+`;
+
+document.body.appendChild(quote);
 
 
-p {
-  color: #e0e0e0;
-  margin-bottom: 25px;
-  font-size: 1rem;
-}
 
-/*new chnages*/
+function addTodo() {
+    const text = input.value.trim();
+    if (!text) {
+        return;
+    }
 
-.input-box{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
-/* Input & Button Container */
-#todo-input {
-  width: 320px;
-  padding: 10px 0;
-  margin: 20px 0;
-  border: none;
-  border-bottom: 2px solid #bbb;
-  outline: none;
-  font-size: 1rem;
-  background: transparent;
-  box-shadow: none;
-  border-radius: 0;
-}
-
-#todo-input:focus {
-  border-bottom: 2px solid #333;
-}
-#add-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: none;
-  background: #333;
-  color: white;
-  font-size: 1.5rem;
-  cursor: pointer;
-  margin-left: 10px;
-}
-
-#add-btn:hover {
-  background: #8f94fb;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
-}
-
-/* Todo List Container */
-#todo-list {
-  list-style: none;
-  margin-top: 30px;
-  padding: 0;
-  width: 380px;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-/*Scrollbar Styling */
-#todo-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-#todo-list::-webkit-scrollbar-thumb {
-  background: #bbb;
-  border-radius: 10px;
+    //Push a new todo object 
+    todos.push({ text, completed: false });
+    input.value = '';
+    render();
+    saveTodos();
 }
 
 
-
-/* Each Todo Item */
-#todo-list li {
-  display: flex;
-  align-items: center;
-  padding: 14px;
-  margin-bottom: 14px;
-  background: white;
-  border-radius: 14px;
-  border: 2px solid #ddd;
-}
-
-#todo-list li:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* Checkbox styling */
-#todo-list input[type="checkbox"] {
-  margin-right: 12px;
-  transform: scale(1.2);
-}
-
-/* Todo Text */
-#todo-list span {
-  flex: 1;
-  color: #333;
-  font-size: 1rem;
-}
-
-#todo-list span:hover {
-  color: #a3ffea;
-}
-
-/* Delete Button */
-
-.delete-btn {
-  border: none;
-  background: transparent;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: #555;
-}
-
-/*edit btn*/
-.edit-btn {
-  border: none;
-  background: transparent;
-  font-size: 1.2rem;
-  cursor: pointer;
-  margin-right: 10px;
-}
-
-#todo-list button:hover {
-  background: #ff6b81;
-  transform: scale(1.05);
-}
-
-/* Completed Todo Animation */
-#todo-list li input[type="checkbox"]:checked + span {
-  text-decoration: line-through;
-  color: #b0b0b0;
-  transition: all 0.3s ease;
-}
-
-/* Smooth fade-in for new todos */
-#todo-list li {
-  animation: fadeIn 0.4s ease forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-  body {
-    padding-top: 50px;
-  }
+addBtn.addEventListener('click', addTodo);
+input.addEventListener('keydown', (e) => {
+    if (e.key == 'Enter') {
+        addTodo();
+    }
+})
+render();
 
 
-  #todo-input {
-    width: 200px;
-  }
-  #todo-list {
-    width: 300px;
-  }
-}
 
-#count {
-  margin-top: 20px;
-  font-style: italic;
-  font-weight: bold;
-  color: #555;
-}
 
-.quote-box{
-    width: 380px;
-    background: #ececec;
-    border-radius: 16px;
-    padding: 18px 22px;
-    margin-top: 25px;
-    color: #222;
-    font-style: italic;
-    font-size: 1rem;
-    line-height: 1.6;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-}
 
-.quote-box span{
-    font-size: 2rem;
-    font-weight: bold;
-    margin-right: 10px;
-    color: #555;
-}
+
