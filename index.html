@@ -3,15 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple TO-DO List</title>
+    <title>Your To-Do List</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Simple TO-DO List</h1>
-<p>Welcome to Simple TO-DO List! You can double click a task to edit it!</p>
+    <h1>Your To-Do List</h1>
+    <p class="subtitle">Your daily tasks made easy with Your To-Do List app!</p>
 
-    <input type="text" id="todo-input" placeholder="Enter a todo and press Add or Enter to add new task">
-    <button id="add-btn">Add</button>
+    
+    <div id="input-area">
+        <input type="text" id="todo-input" placeholder="Add a new task...">
+        <button id="add-btn">+</button>
+    </div>
+
     <ul id="todo-list"> </ul>
     <script src="script.js"></script>
 </body>
