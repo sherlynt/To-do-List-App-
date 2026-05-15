@@ -1,148 +1,190 @@
-//Select Dom Elements 
-const input = document.getElementById("todo-input")
-const addBtn = document.getElementById('add-btn')
-const list = document.getElementById('todo-list')
+// Select Elements
+const input = document.getElementById("todo-input");
 
-/*=====new changes=====*/
-const count = document.createElement('p');
-count.id = 'count';
-document.body.appendChild(count);
+const addBtn = document.getElementById("add-btn");
 
+const list = document.getElementById("todo-list");
 
-//Try to load saved todos from local storage (if any)
-const saved = localStorage.getItem('todos');
+const count = document.getElementById("count");
+
+// Load saved todos
+const saved = localStorage.getItem("todos");
+
 const todos = saved ? JSON.parse(saved) : [];
 
-function saveTodos() {
-    //this saves current todos to local storage
-    localStorage.setItem('todos', JSON.stringify(todos));
+// Save todos
+function saveTodos(){
+
+    localStorage.setItem(
+        "todos",
+        JSON.stringify(todos)
+    );
 }
 
-//Create a dom node for a todo object & append it to the list 
-function createTodoNode(todo, index) {
-    const li = document.createElement('li');
+// Update remaining count
+function updateCount(){
 
-    // checkbox to toggle completion
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.checked = !!todo.completed;  // double not gives us exact False value or gieves exact boolean value
-    checkbox.addEventListener('change', () => {
+    const remaining =
+    todos.filter(todo => !todo.completed).length;
+
+    count.textContent = remaining;
+}
+
+// Create Todo
+function createTodoNode(todo, index){
+
+    // Create li
+    const li = document.createElement("li");
+
+    // Left div
+    const leftDiv = document.createElement("div");
+
+    leftDiv.classList.add("left");
+
+    // Checkbox
+    const checkbox =
+    document.createElement("input");
+
+    checkbox.type = "checkbox";
+
+    checkbox.checked = todo.completed;
+
+    // Todo text
+    const textSpan =
+    document.createElement("span");
+
+    textSpan.textContent = todo.text;
+
+    // Completed style
+    if(todo.completed){
+        textSpan.classList.add("completed");
+    }
+
+    // Checkbox event
+    checkbox.addEventListener("change", () => {
+
         todo.completed = checkbox.checked;
 
-        // TODO: Visual feedback : strick-through when completed
-        textSpan.style.textDecoration = todo.completed ? 'line-through' : "";
+        if(todo.completed){
+            textSpan.classList.add("completed");
+        }
+
+        else{
+            textSpan.classList.remove("completed");
+        }
+
         saveTodos();
-    });
 
-    //TExt of the TODO 
-    const textSpan = document.createElement('span')
-    textSpan.textContent = todo.text;
-    textSpan.style.margin = '0 8px';
-    if (todo.completed) {
-        textSpan.style.textDecoration = 'line-through';
-    }
-    //Add double click event llistener to edit todo
-    textSpan.addEventListener('dblclick', () => {
-        const newText = prompt("Edit todo", todo.text);
-        if (newText !== null) {
-            todo.text = newText.trim()
-            textSpan.textContent = todo.text;
-            saveTodos();
-        }
-    })
-
-    /*=====new changes=====*/
-
-    // Edit Button
-    const editBtn = document.createElement('button');
-    editBtn.textContent = '✏️';
-    editBtn.classList.add('edit-btn');
-
-    editBtn.addEventListener('click', () => {
-        const newText = prompt("Edit todo", todo.text);
-        if (newText !== null && newText.trim() !== "") {
-            todo.text = newText.trim();
-            textSpan.textContent = todo.text;
-            saveTodos();
-        }
+        updateCount();
     });
 
 
+    // =========================
+    // EDIT BUTTON
+    // =========================
 
-    //Delete ToDo button 
-    const delBtn = document.createElement('button');
-    /*=====new changes=====*/
-    delBtn.textContent = '✕';
-    delBtn.classList.add('delete-btn');
-    
-    delBtn.addEventListener('click', () => {
+    const editBtn =
+    document.createElement("button");
+    // Black pencil//
+    editBtn.innerHTML = "&#9998;";
+    editBtn.classList.add("edit-btn");
+
+    // Edit event
+    editBtn.addEventListener("click", () => {
+        const newText = prompt("Edit todo:", todo.text);
+        if(newText !== null){
+            if(newText.trim() !== "") {
+                todo.text = newText.trim();
+                textSpan.textContent = todo.text;
+                saveTodos();
+            }
+
+        }
+    });
+
+    // Delete Button
+    const delBtn =
+    document.createElement("button");
+
+    delBtn.innerHTML = "×";
+
+    delBtn.classList.add("delete-btn");
+
+    // Delete event
+    delBtn.addEventListener("click", () => {
+
         todos.splice(index, 1);
-        render();
-        saveTodos();
-    })
 
-    li.appendChild(checkbox);
-    li.appendChild(textSpan);
+        render();
+
+        saveTodos();
+    });
+
+    // Add elements
+    leftDiv.appendChild(checkbox);
+
+    leftDiv.appendChild(textSpan);
+
+    li.appendChild(leftDiv);
+
     li.appendChild(editBtn);
+
     li.appendChild(delBtn);
-    return li; // to call from render function  
+
+    return li;
 }
 
-//Render the whole TOdo list from todos array
-function render() {
-    list.innerHTML = '';
+// Render Todos
+function render(){
 
-    //Recreate each item 
+    list.innerHTML = "";
+
     todos.forEach((todo, index) => {
 
-        const node = createTodoNode(todo, index);
+        const node =
+        createTodoNode(todo, index);
+
         list.appendChild(node);
     });
-    /*=====new changes=====*/
-    const remaining = todos.filter(todo => !todo.completed).length;
-    count.textContent = `Your remaining tasks are : ${remaining}`;
 
+    updateCount();
 }
 
-/*=====new changes=====*/
-// Quote Box
-const quote = document.createElement('div');
+// Add Todo
+function addTodo(){
 
-quote.classList.add('quote-box');
-
-quote.innerHTML = `
-<span>❝</span>
-"It always seems impossible until it's done"- Nelson Mandela.
-`;
-
-document.body.appendChild(quote);
-
-
-
-function addTodo() {
     const text = input.value.trim();
-    if (!text) {
+
+    // Stop empty input
+    if(!text){
         return;
     }
 
-    //Push a new todo object 
-    todos.push({ text, completed: false });
-    input.value = '';
+    // Add todo object
+    todos.push({
+        text,
+        completed:false
+    });
+
+    // Clear input
+    input.value = "";
+
     render();
+
     saveTodos();
 }
 
+// Add button click
+addBtn.addEventListener("click",addTodo
+);
 
-addBtn.addEventListener('click', addTodo);
-input.addEventListener('keydown', (e) => {
-    if (e.key == 'Enter') {
+// Enter key support
+input.addEventListener("keydown", (e) => {
+
+    if(e.key === "Enter"){
         addTodo();
     }
-})
+});
+
+// Initial render
 render();
-
-
-
-
-
-
