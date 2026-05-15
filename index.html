@@ -2,21 +2,54 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your To-Do List</title>
+
+    <title>Your To Do</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <h1>Your To-Do List</h1>
-    <p class="subtitle">Your daily tasks made easy with Your To-Do List app!</p>
 
-    
-    <div id="input-area">
-        <input type="text" id="todo-input" placeholder="Add a new task...">
-        <button id="add-btn">+</button>
+<body>
+
+    <div class="container">
+
+        <h1>Your To Do</h1>
+
+        <!-- Input Area -->
+        <div class="input-area">
+
+            <input
+                type="text"
+                id="todo-input"
+                placeholder="Add new task"
+            >
+
+            <button id="add-btn">+</button>
+
+        </div>
+
+        <!-- Todo List -->
+        <ul id="todo-list"></ul>
+
+        <!-- Bottom Text -->
+        <div class="bottom-text">
+
+            <h3>
+                Your remaining todos :
+                <span id="count">0</span>
+            </h3>
+
+            <p>
+                "Doing what you love is the cornerstone of having abundance in your life."
+                - Wayne Dyer
+            </p>
+
+        </div>
+
     </div>
 
-    <ul id="todo-list"> </ul>
     <script src="script.js"></script>
+
 </body>
 </html>
